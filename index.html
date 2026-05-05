@@ -1013,6 +1013,16 @@
 
 </main>
 
+<!-- Music Player -->
+<div style="position:fixed;bottom:1.5rem;left:1.5rem;z-index:200">
+  <div id="musicPanel" style="display:none;margin-bottom:0.75rem">
+    <div style="background:rgba(10,10,18,0.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden">
+      <iframe width="280" height="157" src="https://www.youtube.com/embed/1ti2YCFgCoI?si=khbpU59m4g0k01YI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+  </div>
+  <button onclick="toggleMusic()" style="background:linear-gradient(135deg,#7c6ffd,#e96dbb);border:none;border-radius:50%;width:52px;height:52px;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 20px rgba(124,111,253,0.4);transition:transform 0.2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🎵</button>
+</div>
+
 <!-- Toast -->
 <div id="toast"></div>
 
@@ -1513,6 +1523,11 @@ function showToast(msg, type = 'success') {
   t.textContent = msg;
   t.className = 'show ' + type;
   setTimeout(() => { t.className = ''; }, 3000);
+}
+
+function toggleMusic() {
+  const p = document.getElementById('musicPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
 }
 
 // ============================================================
