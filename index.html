@@ -5,7 +5,749 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YouthHub</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<style>
+  :root {
+    --bg: #0a0a12;
+    --bg2: #10101e;
+    --bg3: #16162a;
+    --glass: rgba(255,255,255,0.05);
+    --glass2: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.1);
+    --accent: #7c6ffd;
+    --accent2: #e96dbb;
+    --accent3: #4ecdc4;
+    --text: #f0f0ff;
+    --muted: #8888aa;
+    --danger: #ff5e7e;
+    --success: #4ecdc4;
+    --warning: #ffc857;
+    --card-r: 16px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* Animated gradient background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(124,111,253,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(233,109,187,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(78,205,196,0.06) 0%, transparent 60%);
+    animation: bgPulse 8s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes bgPulse {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+  /* ===== GLASSMORPHISM ===== */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10,10,18,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    cursor: pointer;
+  }
+  .nav-links { display: flex; gap: 0.5rem; align-items: center; }
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active { color: var(--text); background: var(--glass2); }
+  .nav-auth { display: flex; gap: 0.5rem; }
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;
+    padding: 0.5rem 1.2rem;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+  }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-success { background: var(--success); color: #000; }
+  .btn-warning { background: var(--warning); color: #000; }
+  .btn-ghost { background: var(--glass); border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { background: var(--glass2); }
+
+  /* ===== MAIN LAYOUT ===== */
+  main {
+    padding-top: 64px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== PAGES ===== */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 5rem 2rem 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .featured-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(124,111,253,0.15);
+    border: 1px solid rgba(124,111,253,0.3);
+    color: #a89ffd;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+  }
+  .featured-article {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: center;
+    margin-bottom: 4rem;
+  }
+  @media(max-width:768px){
+    .featured-article { grid-template-columns: 1fr; }
+    .nav-links .nav-btn:not(.active) { display: none; }
+  }
+  .featured-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: var(--card-r);
+    overflow: hidden;
+    position: relative;
+  }
+  .featured-img-inner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e1b4b, #312e81, #4c1d95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+  }
+  .featured-category {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .featured-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  .featured-desc {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+  .featured-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  /* ===== CATEGORIES ===== */
+  .categories {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .cat-btn {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cat-btn:hover, .cat-btn.active {
+    background: linear-gradient(135deg, rgba(124,111,253,0.2), rgba(233,109,187,0.2));
+    border-color: rgba(124,111,253,0.4);
+    color: var(--text);
+  }
+
+  /* ===== ARTICLES GRID ===== */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+  .articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .article-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .article-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(124,111,253,0.4);
+    box-shadow: 0 20px 40px rgba(124,111,253,0.1);
+  }
+  .article-card-img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+  }
+  .article-card-body { padding: 1.25rem; }
+  .article-card-cat {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .article-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+  .article-card-desc {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .article-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .like-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.2s;
+    padding: 0;
+  }
+  .like-btn.liked { color: var(--danger); }
+  .like-btn:hover { color: var(--danger); }
+
+  /* ===== SEARCH ===== */
+  .search-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+  .search-input {
+    flex: 1;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem 1.25rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+
+  /* ===== AUTH PAGE ===== */
+  .auth-container {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.5rem;
+  }
+  .auth-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--text), var(--muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .auth-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+  .form-group { margin-bottom: 1.25rem; }
+  .form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .form-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-select {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    cursor: pointer;
+  }
+  .form-select option { background: var(--bg2); }
+  .auth-switch {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .link-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: inherit;
+    text-decoration: underline;
+    padding: 0;
+  }
+
+  /* ===== ARTICLE VIEW ===== */
+  .article-view {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+  }
+  .article-view-img {
+    width: 100%;
+    aspect-ratio: 16/7;
+    border-radius: var(--card-r);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    margin-bottom: 2rem;
+  }
+  .article-view-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+  .article-view-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .article-content {
+    color: rgba(240,240,255,0.8);
+    font-size: 1.05rem;
+    line-height: 1.85;
+  }
+  .article-content p { margin-bottom: 1.25rem; }
+  .comments-section { margin-top: 3rem; }
+  .comment {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .comment-author { font-weight: 600; font-size: 0.875rem; margin-bottom: 0.3rem; }
+  .comment-text { color: var(--muted); font-size: 0.875rem; }
+
+  /* ===== WRITE PAGE ===== */
+  .write-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+  .write-title-input {
+    width: 100%;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    padding: 0.75rem 0;
+    margin-bottom: 1.5rem;
+    outline: none;
+  }
+  .write-title-input::placeholder { color: var(--muted); }
+  .write-textarea {
+    width: 100%;
+    min-height: 400px;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    padding: 1.5rem;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+  .write-textarea:focus { border-color: var(--accent); }
+
+  /* ===== ADMIN PANEL ===== */
+  .admin-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+  .admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .stat-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: var(--card-r);
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { color: var(--muted); font-size: 0.8rem; margin-top: 0.3rem; }
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  .admin-table th {
+    text-align: left;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  .admin-table tr:hover td { background: var(--glass); }
+  .status-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.25rem 0.65rem;
+    border-radius: 100px;
+  }
+  .status-pending { background: rgba(255,200,87,0.15); color: var(--warning); border: 1px solid rgba(255,200,87,0.3); }
+  .status-approved { background: rgba(78,205,196,0.15); color: var(--success); border: 1px solid rgba(78,205,196,0.3); }
+  .status-rejected { background: rgba(255,94,126,0.15); color: var(--danger); border: 1px solid rgba(255,94,126,0.3); }
+  .admin-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+  .admin-tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+  .admin-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .admin-tab:hover { color: var(--text); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .role-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+  }
+  .role-admin { background: rgba(124,111,253,0.15); color: var(--accent); border: 1px solid rgba(124,111,253,0.3); }
+  .role-author { background: rgba(233,109,187,0.15); color: var(--accent2); border: 1px solid rgba(233,109,187,0.3); }
+  .role-user { background: rgba(136,136,170,0.15); color: var(--muted); border: 1px solid rgba(136,136,170,0.3); }
+
+  /* ===== PROFILE ===== */
+  .profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+  }
+  .profile-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+  .profile-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; }
+  .profile-role { color: var(--muted); font-size: 0.875rem; margin-top: 0.25rem; }
+
+  /* ===== TOAST ===== */
+  #toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    z-index: 1000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    max-width: 320px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: var(--success); }
+  #toast.error { border-color: var(--danger); }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.95);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ===== UTILITY ===== */
+  .flex { display: flex; }
+  .gap-2 { gap: 0.5rem; }
+  .gap-3 { gap: 0.75rem; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .w-full { width: 100%; }
+  .text-muted { color: var(--muted); }
+  .text-sm { font-size: 0.875rem; }
+  .mb-4 { margin-bottom: 1rem; }
+  .mb-6 { margin-bottom: 1.5rem; }
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+  .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+  }
+  .back-btn:hover { color: var(--text); }
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-text { font-size: 1.1rem; }
+</style>
 </head>
 <body>
 
@@ -286,7 +1028,490 @@
   </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+// ============================================================
+// DATA STORE (simulating Firebase Firestore)
+// ============================================================
+let state = {
+  currentUser: null,
+  currentArticleId: null,
+  currentFilter: 'all',
+  currentFilter2: 'all',
+  editingUserId: null,
+  previousPage: 'home',
+};
+
+// Demo users (simulating Firebase Auth)
+let users = [
+  { id: 'u1', name: 'ადმინი', email: 'admin@demo.com', pass: 'admin123', role: 'admin', initials: 'ა' },
+  { id: 'u2', name: 'მეგი', email: 'author@demo.com', pass: 'author123', role: 'author', initials: 'მ' },
+  { id: 'u3', name: 'მეგი', email: 'user@demo.com', pass: 'user123', role: 'user', initials: 'მ' },
+];
+
+// Sample articles (simulating Firestore)
+let articles = [
+  {
+    id: 'a1', title: 'ხელოვნური ინტელექტი: მომავლის ტექნოლოგია',
+    content: `ხელოვნური ინტელექტი (AI) სწრაფი ტემპით ვითარდება და ჩვენი ყოველდღიური ცხოვრების განუყოფელ ნაწილად იქცევა. მედიცინიდან განათლებამდე, ტრანსპორტიდან გართობამდე — AI ყველა სფეროში ტოვებს კვალს.\n\nChat-ბოტები, სურათების გენერაცია, ავტომატური თარგმანი — ეს ყველაფერი AI-ის პრაქტიკული გამოყენებაა. მაგრამ მნიშვნელოვანია ვიფიქროთ ეთიკური კუთხითაც: ვინ კონტროლებს AI-ს? ვინ არის პასუხისმგებელი მის გადაწყვეტილებებზე?\n\nსაქართველოში AI-ის გამოყენება სწრაფად იზრდება, განსაკუთრებით ტექ-სტარტაპებში. ახალი თაობა ის თაობაა, ვინც AI-თან ერთად იზრდება.`,
+    desc: 'AI-ის განვითარება სწრაფი ტემპით მიდის. ეს სტატია გიხსნით, თუ რანაირად შეცვლის ხელოვნური ინტელექტი ჩვენ ყოველდღიურ ცხოვრებას.',
+    category: 'ტექნოლოგია', emoji: '🚀', author: 'მეგი', authorId: 'u2',
+    date: '5 მაი, 2026', status: 'approved', likes: 24, likedBy: [], comments: [
+      { user: 'მეგი', text: 'ძალიან საინტერესო სტატიაა! გმადლობთ.' },
+    ],
+  },
+  {
+    id: 'a2', title: 'საქართველოს ახალგაზრდები და სტარტაპ ეკოსისტემა',
+    content: `საქართველოში ახალი თაობა უკვე ქმნის საკუთარ მომავალს — და ეს ხდება სტარტაპებით.\n\nდღეს ახალგაზრდებს შეუძლიათ: 💡 იდეა რეალურ ბიზნესად აქციონ 💰 მოიპოვონ დაფინანსება და გრანტები 🌍 ჩაერთონ საერთაშორისო პროგრამებში 🚀 დაიწყონ სტარტაპი ნულიდან, თუნდაც სკოლის ან უნივერსიტეტის ასაკში\n\nსაქართველოში სტარტაპ ეკოსისტემა სწრაფად იზრდება — ჩნდება ახალი პროექტები, ჰაკათონები და შესაძლებლობები, სადაც ერთ კარგ იდეას შეუძლია ყველაფერი შეცვალოს.\n\nაქ იბადება ახალი თაობის მეწარმეები, რომლებიც არ ელოდებიან "სწორ დროს" — ისინი თავად ქმნიან მას.\n\n👉 ამ გვერდზე ნახავ: ახალ სტარტაპებს საქართველოში, შესაძლებლობებს ახალგაზრდებისთვის, წარმატების ისტორიებს და პრაქტიკულ რჩევებს, როგორ დაიწყო შენც.`,
+    desc: 'საქართველოში ახალი თაობა უკვე ქმნის საკუთარ მომავალს — და ეს ხდება სტარტაპებით.',
+    category: 'ნიუსი', emoji: '💼', author: 'მეგი', authorId: 'u2',
+    date: '4 მაი, 2026', status: 'approved', likes: 18, likedBy: [], comments: [],
+  },
+  {
+    id: 'a3', title: 'ონლაინ სწავლება: 10 საუკეთესო რესურსი ქართველი სტუდენტებისთვის',
+    content: `დღეს განათლება აღარ არის მხოლოდ უნივერსიტეტში სიარული. ინტერნეტმა გახსნა შესაძლებლობა, რომ ვისწავლოთ მსოფლიოს საუკეთესო უნივერსიტეტებიდან, უფასოდ ან ძალიან ხელმისაწვდომ ფასად.\n\n1. Khan Academy — უფასო საგანმანათლებლო პლატფორმა. ისწავლე მათემატიკა, ფიზიკა, ქიმია და პროგრამირების საწყისები. იდეალურია სკოლის მოსწავლეებისთვის.\n\n2. Coursera — წვდომა Stanford, Yale და Google-ის სასწავლო პროგრამებზე. მიიღე საერთაშორისო სერტიფიკატები IT, ბიზნესსა და ფსიქოლოგიაში.\n\n3. edX — შექმნილია Harvard-ისა და MIT-ის მიერ. უნივერსიტეტის დონის ლექციები მეცნიერებაში, ინჟინერიასა და მონაცემთა ანალიზში.\n\n4. Udemy — პრაქტიკული კურსები ვებ დეველოპმენტში, გრაფიკულ დიზაინსა და ციფრულ მარკეტინგში. ხშირად ფასდაკლებით!\n\n5. Duolingo — ენების სწავლა მარტივად და სახალისოდ. იდეალურია დამწყებებისთვის.\n\n6. LinkedIn Learning — პროფესიული განვითარება: ბიზნეს უნარები, მენეჯმენტი, Microsoft Office.\n\n7. Google Digital Garage — Google-ის უფასო კურსები ციფრულ მარკეტინგში, SEO-სა და ონლაინ ბიზნესში. კურსის ბოლოს სერტიფიკატი!\n\n8. Skillshare — კრეატიული უნარები: დიზაინი, ფოტოგრაფია, ვიდეო მონტაჟი, ილუსტრაცია.\n\n9. Codecademy — პროგრამირება ნულიდან: Python, JavaScript, HTML/CSS. ყველაფერი ინტერაქტიულია.\n\n10. 🇬🇪 Skillwill — ქართული საგანმანათლებლო პლატფორმა. IT, მარკეტინგი, დიზაინი ქართულ ენაზე.\n\nონლაინ სწავლა დღეს უკვე არა უბრალოდ შესაძლებლობაა — ეს არის გზა, რომ შეცვალო შენი მომავალი. 🚀 შენი მომავალი იწყება დღეს — არა ხვალ.`,
+    desc: 'დღეს განათლება აღარ არის მხოლოდ უნივერსიტეტში სიარული — გაიცანი 10 საუკეთესო ონლაინ პლატფორმა.',
+    category: 'განათლება', emoji: '📚', author: 'მეგი', authorId: 'u2',
+    date: '3 მაი, 2026', status: 'approved', likes: 31, likedBy: [], comments: [],
+  },
+  {
+    id: 'a7', title: 'ჩემი ახალი სტატია (დასამტკიცებელი)',
+    content: 'ეს სტატია ჯერ ადმინის დამტკიცებას ელოდება...',
+    desc: 'ეს სტატია ჯერ დამტკიცებული არ არის.',
+    category: 'განათლება', emoji: '📝', author: 'მეგი', authorId: 'u2',
+    date: '5 მაი, 2026', status: 'pending', likes: 0, likedBy: [], comments: [],
+  },
+  {
+    id: 'a8', title: 'გზამკვლევი თინეიჯერებისთვის',
+    content: `თინეიჯერობა არის პერიოდი, როცა შენი ცხოვრება ნელ-ნელა ფორმას იღებს — იცვლება აზრები, მიზნები და ხედვა მომავალზე. ეს არის დრო, როცა პატარა გადაწყვეტილებებს დიდი გავლენა აქვს შენს მომავალზე.\n\n📌 1. ნუ შეადარებ თავს სხვებს\nყველას თავისი გზა აქვს. ის, რასაც სხვებში ხედავ, ხშირად მხოლოდ მათი საუკეთესო მომენტებია.\n\n📌 2. არ გადადო საქმეები\n"ხვალიდან დავიწყებ" ხშირად არაფერს ცვლის. დაიწყე დღეს, თუნდაც პატარა ნაბიჯით.\n\n📌 3. შეცდომები ნორმალურია\nშეცდომა ნიშნავს, რომ სწავლობ. სწორედ შეცდომებით იზრდები.\n\n📌 4. აირჩიე სწორი გარემო\nშენი მეგობრები და გარემო დიდ გავლენას ახდენს შენზე. იყავი იმ ადამიანებთან, ვინც წინსვლას გიბიძგებს.\n\n📌 5. იმუშავე საკუთარ თავზე ყოველდღე\nთუნდაც პატარა პროგრესი ყოველდღე, დროთა განმავლობაში დიდ შედეგს გაძლევს.\n\n📌 6. იპოვე ის, რაც გიყვარს\nსცადე სხვადასხვა რამ და იპოვე შენი მიმართულება — სპორტი, ტექნოლოგია, ხელოვნება ან სხვა.\n\n📌 7. იზრუნე ჯანმრთელობაზე\nძილი, კვება და მოძრაობა პირდაპირ მოქმედებს შენს ენერგიასა და განწყობაზე.\n\n📌 8. ნუ შეგეშინდება "არა"-ს მოსმენის\nუარი არ ნიშნავს დასრულებას — ეს უბრალოდ სხვა გზის დასაწყისია.\n\n📌 9. ისწავლე დროის მართვა\nთუ შენ არ გეგმავ დროს, ის დაგეგმავს შენს ცხოვრებას.\n\n📌 10. ნაკლები დრო სოციალურ ქსელებში\nზედმეტი დრო სოციალურ მედიაში გართმევს ფოკუსს და ენერგიას.\n\n📌 11. ისაუბრე პრობლემებზე\nყველაფრის შენში შენახვა რთულია — საუბარი ყოველთვის გეხმარება.\n\n📌 12. ისწავლე ფინანსური აზროვნება\nფულის მართვა მნიშვნელოვანია უკვე ახალგაზრდობიდან.\n\n📌 13. არ მოითხოვო სრულყოფილება\nსრულყოფილება არ არსებობს. მთავარია განვითარება.\n\n📌 14. სცადე ახალი რამეები\nრაც მეტს სცდი, მით უკეთ გაიგებ რა გინდა ცხოვრებაში.\n\n📌 15. დაიცავი შენი საზღვრები\nისწავლე "არა"-ს თქმა, როცა რაღაც არ გეხება ან არ გინდა.\n\n📌 16. იყავი კეთილი, მაგრამ ძლიერი\nკეთილობა არ ნიშნავს სისუსტეს — შეგიძლია იყო კარგი ადამიანი და თან საკუთარ თავს იცავდე.\n\n🚀 შენი ცხოვრება შენს ხელშია. ყოველი პატარა ნაბიჯი ქმნის დიდ მომავალს. შენი საუკეთესო ვერსია იწყება ახლა.`,
+    desc: 'თინეიჯერობა არის პერიოდი, როცა პატარა გადაწყვეტილებებს დიდი გავლენა აქვს შენს მომავალზე — 16 მნიშვნელოვანი რჩევა.',
+    category: 'ცხოვრების სტილი', emoji: '💡', author: 'მეგი', authorId: 'u2',
+    date: '5 მაი, 2026', status: 'approved', likes: 0, likedBy: [], comments: [],
+  },
+  {
+    id: 'a9', title: 'გონება და ემოციები',
+    content: `ფსიქოლოგია მხოლოდ მეცნიერება არ არის — ეს არის გზა, რომ უკეთ გაიგო საკუთარი თავი, ემოციები და აზროვნება. განსაკუთრებით თინეიჯერობის პერიოდში, როცა ცხოვრება სწრაფად იცვლება, ძალიან მნიშვნელოვანია იცოდე როგორ გაუმკლავდე სტრესს, ემოციებს და საკუთარ ფიქრებს.\n\n🌙 სტრესის მართვა\nსტრესი ცხოვრების ნაწილია. სკოლა, გამოცდები, სოციალური ქსელები, მომავლის ფიქრი — ყველაფერი ერთად ხშირად გადაღლას იწვევს. მნიშვნელოვანია იცოდე, რომ სტრესი ყოველთვის ცუდი არ არის.\n\n📌 როგორ ვმართოთ სტრესი: დაისვენე დროულად — ადამიანი რობოტი არ არის. იძინე საკმარისად — ძილის ნაკლებობა პირდაპირ მოქმედებს განწყობაზე. გააკეთე პატარა პაუზები — დიდხანს გადაბმულად მუშაობა ტვინს ღლის. ნაკლები დრო სოციალურ ქსელებში — ზედმეტი ინფორმაცია დამატებით სტრესს ქმნის.\n\n💭 ზედმეტი ფიქრი (Overthinking)\nბევრ ახალგაზრდას აქვს ჩვევა ყველაფერზე ზედმეტად ფიქრის: "რა იფიქრეს ჩემზე?", "თუ არ გამომივა?", "თუ შევცდი?". ზედმეტი ფიქრი ადამიანს ენერგიას ართმევს და შფოთვას ზრდის. კონცენტრირდი იმაზე, რასაც აკონტროლებ. არ შექმნა პრობლემები მომავალზე ფიქრით — ხშირად ყველაზე ცუდი სცენარები რეალურად არც ხდება.\n\n🚀 თვითრწმენა\nთვითრწმენა არ ნიშნავს, რომ ყველაფერში საუკეთესო ხარ. ეს ნიშნავს, რომ საკუთარ თავს ენდობი მაშინაც კი, როცა რაღაც არ გამოგდის. შეწყვიტე საკუთარი თავის დაკნინება. პატარა გამარჯვებები მნიშვნელოვანია. ნუ შეგეშინდება შეცდომების — ყველა წარმატებული ადამიანი ბევრჯერ შეცდა.\n\n📱 სოციალური მედიის გავლენა\nსოციალური მედია ჩვენი ცხოვრების დიდი ნაწილია, მაგრამ ზედმეტი გამოყენება ხშირად ცუდად მოქმედებს ფსიქიკაზე. პრობლემებია: კონცენტრაციის დაკარგვა, საკუთარი თავის სხვებთან შედარება, მოტივაციის შემცირება. ნუ დაიჯერებ ყველაფერს, რასაც ხედავ — ინტერნეტში ადამიანები ხშირად მხოლოდ საუკეთესო მომენტებს აჩვენებენ.\n\n❤️ ემოციების მართვა\nყველა ადამიანს აქვს სევდა, ბრაზი, შიში, იმედგაცრუება. ემოციების ქონა სისუსტე არ არის. ნუ დამალავ ყველაფერს — საუბარი ყოველთვის ამსუბუქებს სიტუაციას. მიეცი საკუთარ თავს დრო. იპოვე რამე, რაც გაწყნარებს — მუსიკა, სეირნობა, სპორტი ან ჰობი.\n\n🧠 საინტერესო ფსიქოლოგიური ფაქტები\n💡 ტვინი ნეგატიურ მოგონებებს უფრო დიდხანს იმახსოვრებს, ვიდრე პოზიტიურს.\n💡 მუსიკა პირდაპირ მოქმედებს ადამიანის ემოციებზე და განწყობაზე.\n💡 ძილის ნაკლებობა ზრდის სტრესსა და გაღიზიანებას.\n💡 ადამიანი უფრო პროდუქტიულია, როცა პატარა მიზნებს ისახავს.\n\n🚀 ყველაზე მნიშვნელოვანი: ცუდი დღეები დროებითია, შეცდომები ნორმალურია, განვითარება დროს მოითხოვს. შენი საუკეთესო ვერსია ერთ დღეში არ იქმნება — ის ყოველდღიური პატარა ნაბიჯებით იწყება.`,
+    desc: 'ფსიქოლოგია გვეხმარება გავიგოთ საკუთარი თავი — სტრესის მართვა, ზედმეტი ფიქრი, თვითრწმენა და ემოციები.',
+    category: 'ცხოვრების სტილი', emoji: '🧠', author: 'მეგი', authorId: 'u2',
+    date: '7 მაი, 2026', status: 'approved', likes: 0, likedBy: [], comments: [],
+  },
+];
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (page === 'home') renderArticles();
+  if (page === 'articles') renderArticles2();
+  if (page === 'admin') renderAdmin();
+  if (page === 'profile') renderProfile();
+  if (page === 'write' && !state.currentUser) { showPage('login'); return; }
+  if (page === 'admin' && (!state.currentUser || state.currentUser.role !== 'admin')) {
+    showToast('ადმინის უფლება არ გაქვთ', 'error'); showPage('home'); return;
+  }
+  window.scrollTo(0,0);
+}
+
+function setActiveNav(btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function goBack() {
+  showPage(state.previousPage || 'home');
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const user = users.find(u => u.email === email && u.pass === pass);
+  if (!user) { showToast('ელ. ფოსტა ან პაროლი არასწორია', 'error'); return; }
+  setUser(user);
+  showPage('home');
+  showToast(`კეთილი იყოს თქვენი მობრძანება, ${user.name}! ✨`, 'success');
+}
+
+function register() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const role = document.getElementById('regRole').value;
+  if (!name || !email || !pass) { showToast('შეავსეთ ყველა ველი', 'error'); return; }
+  if (pass.length < 6) { showToast('პაროლი უნდა იყოს მინ. 6 სიმბოლო', 'error'); return; }
+  if (users.find(u => u.email === email)) { showToast('ეს ელ. ფოსტა უკვე გამოყენებულია', 'error'); return; }
+  const newUser = { id: 'u' + Date.now(), name, email, pass, role, initials: name[0] };
+  users.push(newUser);
+  setUser(newUser);
+  showPage('home');
+  showToast(`რეგისტრაცია წარმატებით დასრულდა! 🎉`, 'success');
+}
+
+function logout() {
+  state.currentUser = null;
+  document.getElementById('navAuth').style.display = 'flex';
+  document.getElementById('navUser').style.display = 'none';
+  document.getElementById('writeNavBtn').style.display = 'none';
+  document.getElementById('adminNavBtn').style.display = 'none';
+  showPage('home');
+  showToast('გამოსვლა წარმატებით', 'success');
+}
+
+function setUser(user) {
+  state.currentUser = user;
+  document.getElementById('navAuth').style.display = 'none';
+  document.getElementById('navUser').style.display = 'flex';
+  document.getElementById('navAvatar').textContent = user.initials;
+  if (user.role === 'author' || user.role === 'admin')
+    document.getElementById('writeNavBtn').style.display = 'inline-flex';
+  if (user.role === 'admin')
+    document.getElementById('adminNavBtn').style.display = 'inline-flex';
+}
+
+// ============================================================
+// ARTICLES RENDERING
+// ============================================================
+function getApproved() {
+  return articles.filter(a => a.status === 'approved');
+}
+
+function renderArticles() {
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  let list = getApproved();
+  if (state.currentFilter !== 'all') list = list.filter(a => a.category === state.currentFilter);
+  if (q) list = list.filter(a => a.title.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q));
+
+  // Featured
+  if (list.length > 0) {
+    const f = list[0];
+    document.getElementById('featuredEmoji').textContent = f.emoji;
+    document.getElementById('featuredCat').textContent = f.category;
+    document.getElementById('featuredTitle').textContent = f.title;
+    document.getElementById('featuredDesc').textContent = f.desc;
+    document.getElementById('featuredAuthor').textContent = f.author;
+    document.getElementById('featuredDate').textContent = f.date;
+    document.getElementById('featuredAvatar').textContent = f.author[0];
+  }
+
+  const grid = document.getElementById('articlesGrid');
+  grid.innerHTML = list.slice(1).map(a => articleCard(a)).join('') ||
+    '<p style="color:var(--muted);grid-column:1/-1">სტატიები ვერ მოიძებნა</p>';
+}
+
+function renderArticles2() {
+  const q = (document.getElementById('searchInput2')?.value || '').toLowerCase();
+  let list = getApproved();
+  if (state.currentFilter2 !== 'all') list = list.filter(a => a.category === state.currentFilter2);
+  if (q) list = list.filter(a => a.title.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q));
+  const grid = document.getElementById('articlesGrid2');
+  grid.innerHTML = list.map(a => articleCard(a)).join('') ||
+    '<p style="color:var(--muted);grid-column:1/-1">სტატიები ვერ მოიძებნა</p>';
+}
+
+function catGradient(cat) {
+  const g = {
+    'ნიუსი': 'linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)',
+    'განათლება': 'linear-gradient(135deg,#0f2027,#203a43,#2c5364)',
+    'გართობა': 'linear-gradient(135deg,#200122,#6f0000,#200122)',
+    'ცხოვრების სტილი': 'linear-gradient(135deg,#134e5e,#71b280)',
+    'ტექნოლოგია': 'linear-gradient(135deg,#1e1b4b,#312e81,#4c1d95)',
+  };
+  return g[cat] || g['ტექნოლოგია'];
+}
+
+function articleCard(a) {
+  return `<div class="article-card" onclick="openArticle('${a.id}')">
+    <div class="article-card-img" style="background:${catGradient(a.category)}">${a.emoji}</div>
+    <div class="article-card-body">
+      <div class="article-card-cat">${a.category}</div>
+      <div class="article-card-title">${a.title}</div>
+      <div class="article-card-desc">${a.desc}</div>
+      <div class="article-card-footer">
+        <span>${a.author} · ${a.date}</span>
+        <button class="like-btn ${a.likedBy.includes(state.currentUser?.id) ? 'liked' : ''}" 
+          onclick="event.stopPropagation();toggleLikeCard('${a.id}')" id="likecard-${a.id}">
+          ♥ ${a.likes}
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function openArticle(id) {
+  const a = articles.find(x => x.id === id);
+  if (!a) return;
+  state.currentArticleId = id;
+  state.previousPage = document.querySelector('.page.active')?.id?.replace('page-','') || 'home';
+
+  document.getElementById('articleViewImg').style.background = catGradient(a.category);
+  document.getElementById('articleViewImg').textContent = a.emoji;
+  document.getElementById('articleViewImg').style.fontSize = '4rem';
+  document.getElementById('articleViewCat').textContent = a.category;
+  document.getElementById('articleViewTitle').textContent = a.title;
+  document.getElementById('articleViewAvatar').textContent = a.author[0];
+  document.getElementById('articleViewAuthor').textContent = a.author;
+  document.getElementById('articleViewDate').textContent = a.date;
+  document.getElementById('articleLikeCount').textContent = a.likes;
+  const lbtn = document.getElementById('articleLikeBtn');
+  lbtn.className = 'like-btn ' + (a.likedBy.includes(state.currentUser?.id) ? 'liked' : '');
+  document.getElementById('articleContent').innerHTML = a.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+  renderComments(a);
+
+  if (state.currentUser) {
+    document.getElementById('commentForm').style.display = 'block';
+    document.getElementById('commentLoginPrompt').style.display = 'none';
+  } else {
+    document.getElementById('commentForm').style.display = 'none';
+    document.getElementById('commentLoginPrompt').style.display = 'block';
+  }
+  showPage('article');
+}
+
+function openFeatured() {
+  const approved = getApproved();
+  let list = approved;
+  if (state.currentFilter !== 'all') list = approved.filter(a => a.category === state.currentFilter);
+  if (list.length > 0) openArticle(list[0].id);
+}
+
+function filterCat(cat, btn) {
+  state.currentFilter = cat;
+  document.querySelectorAll('#homeCats .cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderArticles();
+}
+function filterCat2(cat, btn) {
+  state.currentFilter2 = cat;
+  document.querySelectorAll('#articlesCats .cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderArticles2();
+}
+function filterArticles() { renderArticles(); }
+function filterArticles2() { renderArticles2(); }
+
+// ============================================================
+// LIKES
+// ============================================================
+function toggleLike() {
+  if (!state.currentUser) { showToast('მოსაწონებლად შედით სისტემაში', 'error'); return; }
+  const a = articles.find(x => x.id === state.currentArticleId);
+  if (!a) return;
+  const uid = state.currentUser.id;
+  if (a.likedBy.includes(uid)) {
+    a.likedBy = a.likedBy.filter(i => i !== uid); a.likes--;
+  } else {
+    a.likedBy.push(uid); a.likes++;
+  }
+  document.getElementById('articleLikeCount').textContent = a.likes;
+  const lbtn = document.getElementById('articleLikeBtn');
+  lbtn.className = 'like-btn ' + (a.likedBy.includes(uid) ? 'liked' : '');
+}
+
+function toggleLikeCard(id) {
+  if (!state.currentUser) { showToast('მოსაწონებლად შედით სისტემაში', 'error'); return; }
+  const a = articles.find(x => x.id === id);
+  const uid = state.currentUser.id;
+  if (a.likedBy.includes(uid)) {
+    a.likedBy = a.likedBy.filter(i => i !== uid); a.likes--;
+  } else {
+    a.likedBy.push(uid); a.likes++;
+  }
+  const btn = document.getElementById('likecard-' + id);
+  if (btn) {
+    btn.className = 'like-btn ' + (a.likedBy.includes(uid) ? 'liked' : '');
+    btn.innerHTML = `♥ ${a.likes}`;
+  }
+}
+
+// ============================================================
+// COMMENTS
+// ============================================================
+function renderComments(a) {
+  const list = document.getElementById('commentsList');
+  if (a.comments.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:0.875rem">კომენტარები არ არის. პირველი იყავი!</p>';
+    return;
+  }
+  list.innerHTML = a.comments.map(c => `
+    <div class="comment">
+      <div class="comment-author">${c.user}</div>
+      <div class="comment-text">${c.text}</div>
+    </div>`).join('');
+}
+
+function addComment() {
+  if (!state.currentUser) return;
+  const text = document.getElementById('commentInput').value.trim();
+  if (!text) return;
+  const a = articles.find(x => x.id === state.currentArticleId);
+  a.comments.push({ user: state.currentUser.name, text });
+  document.getElementById('commentInput').value = '';
+  renderComments(a);
+  showToast('კომენტარი დაემატა!', 'success');
+}
+
+// ============================================================
+// WRITE ARTICLE
+// ============================================================
+function submitArticle() {
+  if (!state.currentUser) return;
+  const title = document.getElementById('writeTitle').value.trim();
+  const content = document.getElementById('writeContent').value.trim();
+  const cat = document.getElementById('writeCat').value;
+  const emoji = document.getElementById('writeEmoji').value.trim() || '📝';
+  if (!title || !content) { showToast('სათაური და ტექსტი სავალდებულოა', 'error'); return; }
+
+  const newArticle = {
+    id: 'a' + Date.now(), title, content, desc: content.slice(0, 120) + '...',
+    category: cat, emoji, author: state.currentUser.name, authorId: state.currentUser.id,
+    date: new Date().toLocaleDateString('ka-GE'), status: 'pending', likes: 0, likedBy: [], comments: [],
+  };
+  articles.push(newArticle);
+  document.getElementById('writeTitle').value = '';
+  document.getElementById('writeContent').value = '';
+  document.getElementById('writeEmoji').value = '';
+  showToast('სტატია გაიგზავნა! ადმინი განიხილავს. ✅', 'success');
+  showPage('home');
+}
+
+// ============================================================
+// PROFILE
+// ============================================================
+function renderProfile() {
+  const u = state.currentUser;
+  if (!u) return;
+  document.getElementById('profileAvatar').textContent = u.initials;
+  document.getElementById('profileName').textContent = u.name;
+  document.getElementById('profileEmail').textContent = u.email;
+  const roleMap = { admin: 'ადმინისტრატორი 👑', author: 'ავტორი ✍️', user: 'მომხმარებელი' };
+  document.getElementById('profileRole').textContent = roleMap[u.role] || u.role;
+
+  const myArts = articles.filter(a => a.authorId === u.id);
+  const list = document.getElementById('myArticlesList');
+  if (myArts.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">✍️</div><div class="empty-text">სტატიები ჯერ არ დაგიწერიათ</div></div>';
+    return;
+  }
+  list.innerHTML = myArts.map(a => `
+    <div class="comment" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="openArticle('${a.id}')">
+      <div>
+        <div style="font-weight:600">${a.emoji} ${a.title}</div>
+        <div style="color:var(--muted);font-size:0.8rem">${a.date} · ♥ ${a.likes}</div>
+      </div>
+      <span class="status-badge status-${a.status}">${a.status === 'approved' ? 'დამტკიცებული' : a.status === 'pending' ? 'მოლოდინში' : 'უარყოფილი'}</span>
+    </div>`).join('');
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function renderAdmin() {
+  // Stats
+  const total = articles.length;
+  const pending = articles.filter(a => a.status === 'pending').length;
+  const approved = articles.filter(a => a.status === 'approved').length;
+  const totalUsers = users.length;
+  document.getElementById('adminStats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">სულ სტატია</div></div>
+    <div class="stat-card"><div class="stat-num">${pending}</div><div class="stat-label">მოლოდინში</div></div>
+    <div class="stat-card"><div class="stat-num">${approved}</div><div class="stat-label">დამტკიცებული</div></div>
+    <div class="stat-card"><div class="stat-num">${totalUsers}</div><div class="stat-label">მომხმარებელი</div></div>`;
+
+  // Pending
+  const pendingArts = articles.filter(a => a.status === 'pending');
+  document.getElementById('pendingBody').innerHTML = pendingArts.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem">მოლოდინში სტატიები არ არის ✅</td></tr>'
+    : pendingArts.map(a => `<tr>
+        <td><strong>${a.emoji} ${a.title}</strong></td>
+        <td>${a.author}</td>
+        <td>${a.category}</td>
+        <td><span class="status-badge status-pending">მოლოდინში</span></td>
+        <td style="display:flex;gap:0.4rem;padding:0.9rem 1rem">
+          <button class="btn btn-success btn-sm" onclick="approveArticle('${a.id}')">✓ დამტკიცება</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectArticle('${a.id}')">✗ უარი</button>
+        </td>
+      </tr>`).join('');
+
+  // All articles
+  document.getElementById('allBody').innerHTML = articles.map(a => `<tr>
+    <td>${a.emoji} ${a.title}</td>
+    <td>${a.author}</td>
+    <td>${a.category}</td>
+    <td><span class="status-badge status-${a.status}">${a.status === 'approved' ? 'დამტკ.' : a.status === 'pending' ? 'მოლოდ.' : 'უარყ.'}</span></td>
+    <td>♥ ${a.likes}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="deleteArticle('${a.id}')">წაშლა</button></td>
+  </tr>`).join('');
+
+  // Users
+  document.getElementById('usersBody').innerHTML = users.map(u => `<tr>
+    <td><strong>${u.name}</strong></td>
+    <td style="color:var(--muted)">${u.email}</td>
+    <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+    <td>${articles.filter(a => a.authorId === u.id).length}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="openRoleModal('${u.id}')">✎ როლი</button></td>
+  </tr>`).join('');
+}
+
+function approveArticle(id) {
+  articles.find(a => a.id === id).status = 'approved';
+  renderAdmin(); showToast('სტატია დამტკიცდა ✅', 'success');
+}
+function rejectArticle(id) {
+  articles.find(a => a.id === id).status = 'rejected';
+  renderAdmin(); showToast('სტატია უარყოფილია', 'error');
+}
+function deleteArticle(id) {
+  if (!confirm('დარწმუნებული ხართ?')) return;
+  articles = articles.filter(a => a.id !== id);
+  renderAdmin(); showToast('სტატია წაიშალა', 'success');
+}
+
+function showTab(tab, btn) {
+  document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// Role modal
+function openRoleModal(uid) {
+  state.editingUserId = uid;
+  const u = users.find(x => x.id === uid);
+  document.getElementById('roleModalContent').innerHTML = `
+    <p style="color:var(--muted);margin-bottom:1rem">${u.name} (${u.email})</p>
+    <select class="form-select" id="roleSelect">
+      <option value="user" ${u.role==='user'?'selected':''}>მომხმარებელი</option>
+      <option value="author" ${u.role==='author'?'selected':''}>ავტორი</option>
+      <option value="admin" ${u.role==='admin'?'selected':''}>ადმინი</option>
+    </select>`;
+  document.getElementById('roleModal').classList.add('open');
+}
+function saveRole() {
+  const u = users.find(x => x.id === state.editingUserId);
+  u.role = document.getElementById('roleSelect').value;
+  closeModal(); renderAdmin(); showToast(`${u.name}-ის როლი შეიცვალა`, 'success');
+}
+function closeModal() {
+  document.getElementById('roleModal').classList.remove('open');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderArticles();
 </script>
 </body>
 </html>
